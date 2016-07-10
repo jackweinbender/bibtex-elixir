@@ -1,22 +1,23 @@
 defmodule Bibtex.Parser do
+  def parse(string) do
+    splitEntries(string)
+    |> Enum.map(&parseEntry/1)
+  end
 
-  @doc """
-  Splits a string into a list of Entries
-  """
-  def splitEntries( _rest , entries \\ [], acc \\ [])
-  def splitEntries("\%" <> rest, entries, acc) do
+  defp splitEntries( _rest , entries \\ [], acc \\ [])
+  defp splitEntries("\%" <> rest, entries, acc) do
     comment(rest, entries, acc)
   end
-  def splitEntries("\@" <> rest, entries, acc) do
+  defp splitEntries("\@" <> rest, entries, acc) do
     case Enum.empty?(entries) and Enum.empty?(acc) do
       true  -> splitEntries(rest) # First Entry
       false -> splitEntries(rest, [ to_string(Enum.reverse(acc)) | entries ])
     end
   end
-  def splitEntries(<<char::utf8, rest::binary>>, entries, acc) do
+  defp splitEntries(<<char::utf8, rest::binary>>, entries, acc) do
     splitEntries(rest, entries, [ char | acc ])
   end
-  def splitEntries( _else , entries, acc) do
+  defp splitEntries( _else , entries, acc) do
     Enum.reverse([ to_string(Enum.reverse(acc)) | entries ])
   end
 
@@ -26,24 +27,63 @@ defmodule Bibtex.Parser do
     Enum.reverse([ to_string(Enum.reverse(acc)) | entries ])
   end
 
-  def getEntryType( _rest , map \\ %{:entry_type => '', :citekey => '', :attrs => nil}, acc \\ [])
-  def getEntryType("\@" <> rest, map, acc) do
+  ## @ has been removed by splitEntries/1, so citekey is the first chars before "{"
+  ## Move on to citekey once the first "{" has been reached
+  defp parseEntry( _rest , map \\ %{:entry_type => '', :citekey => ''}, acc \\ [])
+  defp parseEntry("\{" <> rest, map, acc) do
     map = %{map | :entry_type => to_string(Enum.reverse(acc)) }
     getCiteKey(rest, map)
   end
-  def getEntryType(<<char::utf8, rest::binary>>, map, acc) do
-    getEntryType(rest, map, [ char | acc ])
+  defp parseEntry(<<char::utf8, rest::binary>>, map, acc) do
+    parseEntry(rest, map, [ char | acc ])
   end
-  def getEntryType(_else, _map, _acc), do: raise SyntaxError
+  defp parseEntry(_else, _map, _acc), do: raise SyntaxError
 
-  def getCiteKey( _rest , _citekey, acc \\ [])
-  def getCiteKey("\{" <> rest, map, acc) do
-    %{map | :citekey => to_string(Enum.reverse(acc)),
-          :attrs => "Attrs" }
+  ## Parse to first "," to retrieve citekey
+  ## Move on to Attrs once citekey has been established
+  defp getCiteKey( _rest , _citekey, acc \\ [])
+  defp getCiteKey("\," <> rest, map, acc) do
+    getAttrs(rest, %{map | :citekey => to_string(Enum.reverse(acc)) } )
   end
-  def getCiteKey(<<char::utf8, rest::binary>>, map, acc) do
+  defp getCiteKey(<<char::utf8, rest::binary>>, map, acc) do
     getCiteKey(rest, map, [ char | acc ])
   end
-  def getCiteKey(_else, _map, _acc), do: raise SyntaxError
+  defp getCiteKey(_else, _map, _acc), do: raise SyntaxError
 
+  defp getAttrs(_rest, _map, acc \\ [], depth \\ 0)
+  defp getAttrs("\}"<>rest, map, acc, depth) when depth == 0 do
+    attr = Enum.reverse(acc)
+      |> to_string()
+      |> String.trim()
+      |> parseAttr()
+    getAttrs(rest, Map.merge(map, attr))
+  end
+  defp getAttrs("\}"<>rest, map, acc, depth), do: getAttrs(rest, map, acc, depth - 1)
+  defp getAttrs("\{"<>rest, map, acc, depth), do: getAttrs(rest, map, acc, depth + 1)
+  defp getAttrs("\,"<>rest, map, acc, depth) when depth == 0 do
+    attr = Enum.reverse(acc)
+      |> to_string()
+      |> String.trim()
+      |> parseAttr()
+    getAttrs(rest, Map.merge(map, attr))
+  end
+  defp getAttrs(<<char::utf8, rest::binary>>, map, acc, depth) do
+    getAttrs(rest, map, [ char | acc ], depth)
+  end
+  defp getAttrs(_rest, map, _acc, depth), do: map
+  defp parseAttr(attr_string) do
+    [head | [tail]] =
+      String.split(attr_string, "=")
+      |> Enum.map(fn(s) -> String.trim(s) end)
+    %{format_atom(head) => tail}
+  end
+
+  defp format_atom(string) do
+    String.downcase(string)
+    |> String.to_atom()
+  end
 end
+
+
+# put_new_lazy(map, key, fun)
+# Evaluates fun and puts the result under key in map unless key is already present
