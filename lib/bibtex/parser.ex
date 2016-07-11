@@ -14,6 +14,7 @@ defmodule Bibtex.Parser do
       false -> splitEntries(rest, [ to_string(Enum.reverse(acc)) | entries ])
     end
   end
+  defp splitEntries("\n"<>rest, entries, acc), do: splitEntries(rest, entries, acc)
   defp splitEntries(<<char::utf8, rest::binary>>, entries, acc) do
     splitEntries(rest, entries, [ char | acc ])
   end
@@ -44,6 +45,9 @@ defmodule Bibtex.Parser do
   defp getCiteKey( _rest , _citekey, acc \\ [])
   defp getCiteKey("\," <> rest, map, acc) do
     getAttrs(rest, %{map | :citekey => to_string(Enum.reverse(acc)) } )
+  end
+  defp getCiteKey("}" <> rest, map, acc) do
+    %{map | :citekey => to_string(Enum.reverse(acc)) }
   end
   defp getCiteKey(<<char::utf8, rest::binary>>, map, acc) do
     getCiteKey(rest, map, [ char | acc ])
