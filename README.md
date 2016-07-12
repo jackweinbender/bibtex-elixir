@@ -1,4 +1,4 @@
-# Bibtex
+# Bibtex-Elixir
 
 A pure Elixir BibTeX parser. Please note, this is a work in progress. PR's welcomed.
 
