@@ -1,3 +1,8 @@
+[![Hex.pm](https://img.shields.io/hexpm/v/lfe.svg)]()
+[![Hex.pm](https://img.shields.io/hexpm/dt/lfe.svg)]()
+[![Hex.pm](https://img.shields.io/hexpm/dw/lfe.svg)]()
+[![Hex.pm](https://img.shields.io/hexpm/dd/lfe.svg)]()
+
 # Bibtex-Elixir
 
 A pure Elixir BibTeX parser. Please note, this is a work in progress. PR's welcomed.
