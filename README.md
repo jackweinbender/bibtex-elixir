@@ -1,7 +1,7 @@
-[![Hex.pm](https://img.shields.io/hexpm/v/lfe.svg)]()
-[![Hex.pm](https://img.shields.io/hexpm/dt/lfe.svg)]()
-[![Hex.pm](https://img.shields.io/hexpm/dw/lfe.svg)]()
-[![Hex.pm](https://img.shields.io/hexpm/dd/lfe.svg)]()
+[![Hex.pm](https://img.shields.io/hexpm/v/bibtex_elixir.svg)]()
+[![Hex.pm](https://img.shields.io/hexpm/dt/bibtex_elixir.svg)]()
+[![Hex.pm](https://img.shields.io/hexpm/dw/bibtex_elixir.svg)]()
+[![Hex.pm](https://img.shields.io/hexpm/dd/bibtex_elixir.svg)]()
 
 # Bibtex-Elixir
 
