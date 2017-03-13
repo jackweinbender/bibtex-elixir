@@ -1,6 +1,6 @@
 [![Hex.pm](https://img.shields.io/hexpm/v/bibtex_elixir.svg)]()
 [![Hex.pm](https://img.shields.io/hexpm/dt/bibtex_elixir.svg)]()
-[![Hex.pm](https://img.shields.io/hexpm/dw/bibtex_elixir.svg)]()
+[![Hex.pm](https://img.shields.io/hexpm/l/bibtex_elixir.svg)]()
 
 # Bibtex-Elixir
 
